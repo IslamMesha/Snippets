@@ -5,10 +5,13 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
+from rest_framework import status
+from rest_framework.decorators import api_view
 
 
 @csrf_exempt
-def snippet_list(request):
+# @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def snippet_list(request, format=None):
     """List all code snippets, or create a new snippet."""
     if request.method == 'GET':
         snippets = Snippet.objects.all()
@@ -32,7 +35,8 @@ def snippet_list(request):
 
 
 @csrf_exempt
-def snippet_detail(request, pk):
+# @api_view(['GET', 'POST'])
+def snippet_detail(request, pk, format=None):
     """Retrieve, update or delete a code snippet."""
     try:
         snippet = Snippet.objects.get(pk=pk)
