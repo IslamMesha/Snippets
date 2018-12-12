@@ -8,12 +8,23 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import mixins, permissions
 from rest_framework import generics
+from rest_framework import renderers
 
 from snippets.models import Snippet
 from snippets.permissions import IsOwnerOrReadOnly
 from snippets.serializers import SnippetSerializer, UserSerializer
 from rest_framework import status
+from rest_framework.reverse import reverse
 from rest_framework.decorators import api_view
+
+
+# API Root.
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'users': reverse('user_list', request=request, format=format),
+        'snippets': reverse('snippet_list', request=request, format=format)
+    })
 
 
 # User Views
@@ -58,6 +69,15 @@ class SnippetDetail(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.U
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class SnippetHighlight(generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    renderer_classes = (renderers.StaticHTMLRenderer,)
+
+    def get(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
 
 # Class Based Views
 # class SnippetList(APIView):
